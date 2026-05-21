@@ -138,8 +138,8 @@ function updateRecordsSearch() {
 async function loadData() {
   try {
     const [lightRes, recordRes] = await Promise.all([
-      fetch('../data/light.txt'),
-      fetch('../data/data.txt'),
+      fetch('data/light.txt'),
+      fetch('data/data.txt'),
     ]);
 
     const [lightText, recordText] = await Promise.all([lightRes.text(), recordRes.text()]);
