@@ -41,25 +41,45 @@ function parseLights(text) {
   });
 }
 
-function parseRecords(text) {
-  return text
-    .trim()
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const parts = line.split(/\s+/);
-      const idServer = parts[0] || '';
-      const number = parts[1] || '';
-      const content = parts.slice(2).join(' ') || '';
-      const [id, server] = idServer.split('@');
-      return {
-        id: id || idServer,
-        server: server || '',
-        lamp: number,
-        content,
-      };
-    });
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === ',' && !inQuotes) {
+      result.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur);
+  return result.map((v) => v.trim());
+}
+
+function parseRecordsFromCSV(text) {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return [];
+  const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase());
+  const rows = lines.slice(1).map((line) => parseCSVLine(line));
+  return rows.map((cols) => {
+    // Expecting: date, player, server, lamp, content
+    const map = {};
+    map.date = cols[0] || '';
+    map.id = cols[1] || '';
+    map.server = cols[2] || '';
+    map.lamp = cols[3] || '';
+    map.content = cols[4] || '';
+    return map;
+  });
 }
 
 function renderLights(items) {
@@ -107,6 +127,7 @@ function renderRecords(records) {
   records.forEach((record) => {
     const row = document.createElement('tr');
     row.innerHTML = `
+      <td>${record.date || ''}</td>
       <td>${record.id}</td>
       <td>${record.server}</td>
       <td>${getLampLabel(record.lamp)}</td>
@@ -129,7 +150,7 @@ function updateRecordsSearch() {
   const query = recordsSearchInput.value.trim().toLowerCase();
   const filtered = records.filter((record) => {
     const lampLabel = getLampLabel(record.lamp);
-    const haystack = [record.id, record.server, record.lamp, lampLabel, record.content].join(' ').toLowerCase();
+    const haystack = [record.date, record.id, record.server, record.lamp, lampLabel, record.content].join(' ').toLowerCase();
     return haystack.includes(query);
   });
   renderRecords(filtered);
@@ -139,18 +160,18 @@ async function loadData() {
   try {
     const [lightRes, recordRes] = await Promise.all([
       fetch('data/light.txt'),
-      fetch('data/data.txt'),
+      fetch('https://docs.google.com/spreadsheets/d/1Mo7UW4S9F4BKNWinJGCu-H9nUz6bfXkQU_s8EtyMDOQ/export?format=csv&gid=0'),
     ]);
 
     const [lightText, recordText] = await Promise.all([lightRes.text(), recordRes.text()]);
     lights = parseLights(lightText);
-    records = parseRecords(recordText);
+    records = parseRecordsFromCSV(recordText);
     renderLights(lights);
     renderRecords(records);
   } catch (error) {
-    lightsEmpty.textContent = '無法載入資料，請確認 light.txt 與 data.txt 是否存在且格式正確。';
+    lightsEmpty.textContent = '無法載入資料，請確認 light.txt 是否存在且格式正確，或 Google Sheet 是否公開。';
     lightsEmpty.style.display = 'block';
-    recordsEmpty.textContent = '無法載入紀錄，請確認資料檔案是否可讀取。';
+    recordsEmpty.textContent = '無法載入紀錄，請確認 Google Sheet 是否公開或網址是否正確。';
     recordsEmpty.style.display = 'block';
     console.error(error);
   }
