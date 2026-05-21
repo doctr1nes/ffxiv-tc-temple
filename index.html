@@ -7,8 +7,18 @@
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
   <body>
-    <header class="hero">
+    <div class="top-bar">
+      <nav class="top-bar__inner">
+        <a class="top-bar__item active" href="#home">首頁</a>
+        <a class="top-bar__item" href="#lights">光明燈列表</a>
+        <a class="top-bar__item" href="#records">點燈紀錄</a>
+      </nav>
+    </div>
+    <header class="hero" id="home">
       <div class="hero__overlay"></div>
+      <button class="carousel-btn carousel-btn--prev" aria-label="前一張">❮</button>
+      <button class="carousel-btn carousel-btn--next" aria-label="下一張">❯</button>
+      <div class="carousel-dots" id="carouselDots"></div>
       <div class="hero__content">
         <p class="eyebrow">&emsp;慶安天后宮 | 迦樓羅 薰衣草苗圃 第16區41號</p>
         <h1>十二神光明燈</h1>
@@ -18,10 +28,6 @@
           「慶安天后宮十二神光明燈，專治版本不順！」<br>
           「一燈消黑氣，二燈退坐牢，三燈保你下週直接畢業。」\0.0/ <br>
            &emsp;- 狗叫什麼@迦樓羅 大師</p>
-        <nav class="hero-nav">
-          <a href="#lights">光明燈列表</a>
-          <a href="#records">點燈紀錄</a>
-        </nav>
         <a class="scroll-hint" href="#lights">向下滑動查看內容</a>
       </div>
     </header>
@@ -58,8 +64,8 @@
             <colgroup>
               <col style="width: 10%;" />
               <col style="width: 15%;" />
+              <col style="width: 10%;" />
               <col style="width: 15%;" />
-              <col style="width: 12%;" />
               <col />
             </colgroup>
             <thead>
@@ -83,6 +89,7 @@
       <p>FFXIV 十二神光明燈 | GitHub Pages</p>
     </footer>
 
+    <button id="scrollTopButton" class="scroll-top-btn" aria-label="回到最上面">▲</button>
     <script src="assets/script.js"></script>
   </body>
 </html>

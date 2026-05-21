@@ -179,4 +179,157 @@ async function loadData() {
 
 searchInput.addEventListener('input', updateSearch);
 recordsSearchInput.addEventListener('input', updateRecordsSearch);
+
+function initHeroCarousel() {
+  const hero = document.querySelector('.hero');
+  const dotsContainer = document.getElementById('carouselDots');
+  const prevBtn = document.querySelector('.carousel-btn--prev');
+  const nextBtn = document.querySelector('.carousel-btn--next');
+  
+  if (!hero || !dotsContainer) return;
+  
+  const images = ['ffxiv01.png', 'ffxiv02.png', 'ffxiv03.png', 'ffxiv04.png'];
+  let currentIndex = 0;
+  let autoPlayInterval;
+  
+  // Create dots
+  images.forEach((_, idx) => {
+    const dot = document.createElement('button');
+    dot.className = `carousel-dot ${idx === 0 ? 'active' : ''}`;
+    dot.setAttribute('aria-label', `圖片 ${idx + 1}`);
+    dot.addEventListener('click', () => goToSlide(idx));
+    dotsContainer.appendChild(dot);
+  });
+  
+  function updateBackground() {
+    hero.style.backgroundImage = `url('assets/${images[currentIndex]}')`;
+    document.querySelectorAll('.carousel-dot').forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === currentIndex);
+    });
+  }
+  
+  function goToSlide(idx) {
+    currentIndex = idx % images.length;
+    updateBackground();
+    resetAutoPlay();
+  }
+  
+  function nextSlide() {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateBackground();
+  }
+  
+  function prevSlide() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateBackground();
+  }
+  
+  function startAutoPlay() {
+    if (autoPlayInterval) {
+      clearInterval(autoPlayInterval);
+    }
+    autoPlayInterval = setInterval(nextSlide, 5000);
+  }
+  
+  function resetAutoPlay() {
+    if (autoPlayInterval) {
+      clearInterval(autoPlayInterval);
+    }
+    startAutoPlay();
+  }
+  
+  function pauseAutoPlay() {
+    if (autoPlayInterval) {
+      clearInterval(autoPlayInterval);
+      autoPlayInterval = null;
+    }
+  }
+  
+  prevBtn.addEventListener('click', () => {
+    prevSlide();
+    resetAutoPlay();
+  });
+  
+  nextBtn.addEventListener('click', () => {
+    nextSlide();
+    resetAutoPlay();
+  });
+  
+  hero.addEventListener('mouseenter', pauseAutoPlay);
+  hero.addEventListener('mouseleave', startAutoPlay);
+  
+  updateBackground();
+  startAutoPlay();
+}
+
 loadData();
+initHeroCarousel();
+initTopBarNavigation();
+initScrollTopButton();
+
+function initTopBarNavigation() {
+  const topBarItems = document.querySelectorAll('.top-bar__item');
+  const sections = Array.from(topBarItems)
+    .map((item) => {
+      const target = item.getAttribute('href');
+      return target && document.querySelector(target);
+    })
+    .filter(Boolean);
+
+  function setActive(item) {
+    topBarItems.forEach((btn) => btn.classList.toggle('active', btn === item));
+  }
+
+  topBarItems.forEach((item) => {
+    item.addEventListener('click', (event) => {
+      event.preventDefault();
+      const targetId = item.getAttribute('href');
+      const targetSection = targetId && document.querySelector(targetId);
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setActive(item);
+      }
+    });
+  });
+
+  function updateActiveOnScroll() {
+    const scrollPosition = window.scrollY + window.innerHeight * 0.15;
+    let currentActive = topBarItems[0];
+
+    sections.forEach((section, index) => {
+      const rect = section.getBoundingClientRect();
+      const top = window.scrollY + rect.top;
+      if (scrollPosition >= top) {
+        currentActive = topBarItems[index];
+      }
+    });
+
+    setActive(currentActive);
+  }
+
+  window.addEventListener('scroll', updateActiveOnScroll);
+  updateActiveOnScroll();
+}
+
+function initScrollTopButton() {
+  const floatingButton = document.getElementById('scrollTopButton');
+
+  function updateFloatingButtonVisibility() {
+    if (!floatingButton) return;
+    if (window.scrollY > 200) {
+      floatingButton.classList.remove('hidden');
+    } else {
+      floatingButton.classList.add('hidden');
+    }
+  }
+
+  if (floatingButton) {
+    floatingButton.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  window.addEventListener('scroll', updateFloatingButtonVisibility);
+  updateFloatingButtonVisibility();
+}
+
