@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FFXIV 線上光明燈</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__overlay"></div>
+      <div class="hero__content">
+        <p class="eyebrow">FFXIV 光明燈 | 線上祈願</p>
+        <h1>十二神光明燈</h1>
+        <p>「99場坐騎未出、裝備總是骰99還輸、每日永遠排到問題隊友之苦？」<br>
+            「莫慌！」<br>
+            「慶安天后宮十二神光明燈，專治版本不順！」<br>
+            「一燈消黑氣，二燈退坐牢，三燈保你下週直接畢業。」\0.0/</p>
+        <nav class="hero-nav">
+          <a href="#lights">光明燈列表</a>
+          <a href="#records">點燈紀錄</a>
+        </nav>
+        <a class="scroll-hint" href="#lights">向下滑動查看內容</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="section" id="lights">
+        <div class="section__head">
+          <div>
+            <p class="section__eyebrow">光明燈字卡</p>
+            <h2>選擇你的光明燈</h2>
+          </div>
+          <div class="search-wrap">
+            <input id="searchInput" type="search" placeholder="輸入關鍵字搜尋光明燈，例如 PVP、冒險、命運" aria-label="搜尋光明燈" />
+          </div>
+        </div>
+
+        <div id="lightsGrid" class="grid"></div>
+        <div id="lightsEmpty" class="empty-state">正在載入光明燈內容，或尚無符合條件的結果。</div>
+      </section>
+
+      <section class="section section--alt" id="records">
+        <div class="section__head">
+          <div>
+            <p class="section__eyebrow">點燈紀錄</p>
+            <h2>所有祈福玩家</h2>
+          </div>
+          <div class="search-wrap">
+            <input id="recordsSearchInput" type="search" placeholder="搜尋玩家、伺服器、光明燈編號或祈福內容" aria-label="搜尋祈福玩家" />
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>玩家</th>
+                <th>伺服器</th>
+                <th>光明燈</th>
+                <th>祈福內容</th>
+              </tr>
+            </thead>
+            <tbody id="recordsBody"></tbody>
+          </table>
+          <div id="recordsEmpty" class="empty-state">正在載入點燈紀錄，或尚無資料。</div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <p>FFXIV 線上光明燈 | 靜態 GitHub Pages 網站</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+  </body>
+</html>
