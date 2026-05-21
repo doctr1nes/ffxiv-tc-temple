@@ -283,6 +283,7 @@ pre {
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 thead {
@@ -292,8 +293,11 @@ thead {
 th,
 td {
   padding: 1rem 1.1rem;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 th {
