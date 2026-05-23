@@ -111,9 +111,63 @@ function renderLights(items) {
   });
 }
 
+function toChineseNumber(num) {
+  const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  if (num === 0) return '零';
+  if (num < 10) return digits[num];
+  if (num < 20) return `十${num % 10 === 0 ? '' : digits[num % 10]}`;
+  if (num < 100) {
+    const tens = Math.floor(num / 10);
+    const ones = num % 10;
+    return `${digits[tens]}十${ones === 0 ? '' : digits[ones]}`;
+  }
+  if (num < 1000) {
+    const hundreds = Math.floor(num / 100);
+    const remainder = num % 100;
+    let result = `${digits[hundreds]}百`;
+    if (remainder === 0) return result;
+    if (remainder < 10) {
+      result += `零${digits[remainder]}`;
+    } else {
+      const tens = Math.floor(remainder / 10);
+      const ones = remainder % 10;
+      if (tens === 0) {
+        result += `零${digits[ones]}`;
+      } else {
+        result += `${digits[tens]}十${ones === 0 ? '' : digits[ones]}`;
+      }
+    }
+    return result;
+  }
+  return String(num);
+}
+
 function getLampLabel(lampId) {
-  const match = lights.find((light) => String(light.id) === String(lampId));
-  return match ? match.name : lampId;
+  if (!lampId) {
+    return '';
+  }
+
+  const value = String(lampId).trim();
+
+  if (value.includes('/')) {
+    return value
+      .split('/')
+      .map((part) => getLampLabel(part.trim()))
+      .filter(Boolean)
+      .join('<br>');
+  }
+
+  const countMatch = value.match(/^(\d+)\*(\d+)$/);
+  if (countMatch) {
+    const id = countMatch[1];
+    const count = Number(countMatch[2]);
+    const match = lights.find((light) => String(light.id) === id);
+    const label = match ? match.name : id;
+    return `${label}${toChineseNumber(count)}盞`;
+  }
+
+  const match = lights.find((light) => String(light.id) === value);
+  return match ? match.name : value;
 }
 
 function renderRecords(records) {
@@ -161,6 +215,7 @@ async function loadData() {
     const [lightRes, recordRes] = await Promise.all([
       fetch('data/light.txt'),
       fetch('https://docs.google.com/spreadsheets/d/1Mo7UW4S9F4BKNWinJGCu-H9nUz6bfXkQU_s8EtyMDOQ/export?format=csv&gid=0'),
+      // fetch('https://docs.google.com/spreadsheets/d/1shMN2B9CeTE4E6iT-_8W9m6oEIkAueVHHj5IUvaOPms/export?format=csv&gid=0'), // Debug
     ]);
 
     const [lightText, recordText] = await Promise.all([lightRes.text(), recordRes.text()]);
