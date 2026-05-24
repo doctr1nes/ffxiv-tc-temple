@@ -12,6 +12,7 @@
         <a class="top-bar__item active" href="#home">首頁</a>
         <a class="top-bar__item" href="#lights">光明燈列表</a>
         <a class="top-bar__item" href="#records">點燈紀錄</a>
+        <a class="top-bar__item" href="#comments">留言板</a>
       </nav>
     </div>
     <header class="hero" id="home">
@@ -80,6 +81,63 @@
             <tbody id="recordsBody"></tbody>
           </table>
           <div id="recordsEmpty" class="empty-state">正在載入點燈紀錄，或尚無資料。</div>
+        </div>
+      </section>
+      
+      <section class="section section--alt" id="comments">
+        <div class="section__head">
+          <div>
+            <p class="section__eyebrow">留言板</p>
+            <h2>留下你的祝福或留言</h2>
+          </div>
+        </div>
+        <form id="commentForm" class="comment-form">
+          <div class="comment-form__fields">
+            <div class="form-row">
+              <label for="commentPlayer">玩家 / ID</label>
+              <input id="commentPlayer" type="text" placeholder="玩家名稱" required />
+            </div>
+            <div class="form-row">
+              <label for="commentServer">伺服器</label>
+              <select id="commentServer" required>
+                <option value="" disabled selected>請選擇伺服器</option>
+                <option value="伊弗利特">伊弗利特</option>
+                <option value="迦樓羅">迦樓羅</option>
+                <option value="利維坦">利維坦</option>
+                <option value="鳳凰">鳳凰</option>
+                <option value="奧汀">奧汀</option>
+                <option value="巴哈姆特">巴哈姆特</option>
+                <option value="泰坦">泰坦</option>
+              </select>
+            </div>
+            <div class="form-row form-row--grow">
+              <label for="commentContent">留言內容</label>
+              <textarea id="commentContent" rows="1" placeholder="輸入留言內容"></textarea>
+            </div>
+            <div class="form-row form-row--submit">
+              <button id="commentSubmit" type="submit">送出留言</button>
+            </div>
+          </div>
+        </form>
+        <div class="table-container">
+            <table>
+              <colgroup>
+                <col style="inline-size: 18%;" />
+                <col style="inline-size: 18%;" />
+                <col style="inline-size: 18%;" />
+                <col />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>日期時間</th>
+                  <th>玩家 / ID</th>
+                  <th>伺服器</th>
+                  <th>留言內容</th>
+                </tr>
+              </thead>
+              <tbody id="commentsBody"></tbody>
+            </table>
+            <div id="commentsEmpty" class="empty-state">載入留言中，或尚無留言。</div>
         </div>
       </section>
 

@@ -348,7 +348,10 @@ main {
   min-width: 240px;
 }
 
-input[type="search"] {
+input[type="search"],
+.comment-form input[type="text"],
+.comment-form select,
+.comment-form textarea {
   width: 100%;
   padding: 1rem 1.15rem;
   border-radius: 16px;
@@ -358,8 +361,97 @@ input[type="search"] {
   outline: none;
 }
 
-input[type="search"]::placeholder {
+input[type="search"]::placeholder,
+.comment-form input[type="text"]::placeholder,
+.comment-form textarea::placeholder {
   color: rgba(255, 255, 255, 0.55);
+}
+
+.comment-form {
+  margin-bottom: 1.75rem;
+  padding: 1.75rem;
+  border-radius: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.comment-form__fields {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr) minmax(200px, 2.5fr) auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.comment-form .form-row {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.comment-form label {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.comment-form select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ffffff8c' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.15rem center;
+}
+
+.comment-form select option {
+  color: #07111d;
+  background: #fff;
+}
+
+.comment-form textarea {
+  min-height: 3.25rem;
+  resize: vertical;
+}
+
+.comment-form .form-row--submit button {
+  white-space: nowrap;
+}
+
+.comment-form button {
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  border: none;
+  background: var(--accent);
+  color: #07111d;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.comment-form button:hover,
+.comment-form button:focus {
+  background: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .comment-form__fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .comment-form .form-row--grow,
+  .comment-form .form-row--submit {
+    grid-column: 1 / -1;
+  }
+
+  .comment-form .form-row--submit button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .comment-form__fields {
+    grid-template-columns: 1fr;
+  }
 }
 
 .grid {

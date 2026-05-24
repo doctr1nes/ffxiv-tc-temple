@@ -4,9 +4,17 @@ const recordsBody = document.getElementById('recordsBody');
 const recordsEmpty = document.getElementById('recordsEmpty');
 const searchInput = document.getElementById('searchInput');
 const recordsSearchInput = document.getElementById('recordsSearchInput');
+const commentsBody = document.getElementById('commentsBody');
+const commentsEmpty = document.getElementById('commentsEmpty');
+const commentForm = document.getElementById('commentForm');
+const commentPlayer = document.getElementById('commentPlayer');
+const commentServer = document.getElementById('commentServer');
+const commentContent = document.getElementById('commentContent');
+const commentSubmit = document.getElementById('commentSubmit');
 
 let lights = [];
 let records = [];
+let comments = [];
 
 function parseLights(text) {
   const sections = text
@@ -191,6 +199,113 @@ function renderRecords(records) {
   });
 }
 
+// --- Comments handling ---
+// Replace the DEPLOYMENT_ID below with your Web App deployment ID after you deploy the Apps Script.
+const DEPLOYMENT_ID = 'AKfycbz8PRvfXCUzKy8X3xWyBmKqMGWCpYcPIMSBl7kFSPeaRmcpBE1wOUA9XuVyhhBex6oY';
+const COMMENTS_GET_URL = `https://script.google.com/macros/s/${DEPLOYMENT_ID}/exec?action=getComments`;
+const COMMENTS_POST_URL = `https://script.google.com/macros/s/${DEPLOYMENT_ID}/exec`;
+
+function formatCommentDate(value) {
+  if (!value) return '';
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}/${month}/${day} ${hours}:${minutes}`;
+}
+
+function parseCommentsFromJSON(data) {
+  // Expecting an array of objects: {date, id, server, content}
+  if (!Array.isArray(data)) return [];
+  return data.map((r) => ({
+    date: formatCommentDate(r.date || r.datetime || r.timestamp || ''),
+    id: r.id || r.player || r.name || '',
+    server: r.server || '',
+    content: r.content || r.message || r.text || '',
+  }));
+}
+
+function renderComments(items) {
+  if (!commentsBody) return;
+  commentsBody.innerHTML = '';
+  if (!items || !items.length) {
+    if (commentsEmpty) commentsEmpty.style.display = 'block';
+    return;
+  }
+  if (commentsEmpty) commentsEmpty.style.display = 'none';
+
+  items.forEach((c) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${c.date || ''}</td>
+      <td>${escapeHtml(c.id || '')}</td>
+      <td>${escapeHtml(c.server || '')}</td>
+      <td>${escapeHtml(c.content || '')}</td>
+    `;
+    commentsBody.appendChild(row);
+  });
+}
+
+async function loadComments() {
+  try {
+    const res = await fetch(COMMENTS_GET_URL);
+    const json = await res.json();
+    comments = parseCommentsFromJSON(json);
+    renderComments(comments);
+  } catch (err) {
+    console.warn('載入留言失敗', err);
+    if (commentsEmpty) commentsEmpty.textContent = '無法載入留言，請確認 Google Apps Script 是否正確公開。';
+    if (commentsEmpty) commentsEmpty.style.display = 'block';
+  }
+}
+
+async function submitComment(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  if (!commentPlayer || !commentServer || !commentContent) return;
+  const id = commentPlayer.value.trim();
+  const server = commentServer.value.trim();
+  const content = commentContent.value.trim();
+  if (!id || !server || !content) {
+    alert('請填寫玩家、伺服器與留言內容。');
+    return;
+  }
+
+  const payload = new URLSearchParams({ id, server, content });
+  commentSubmit.disabled = true;
+  try {
+    const res = await fetch(COMMENTS_POST_URL, {
+      method: 'POST',
+      body: payload,
+    });
+    if (!res.ok) throw new Error('Network response was not ok');
+    // optimistic update: add to list with local timestamp
+    const now = new Date();
+    const local = { date: formatCommentDate(now), id, server, content };
+    comments.unshift(local);
+    renderComments(comments);
+    commentForm.reset();
+    // Optionally refresh from server
+    setTimeout(loadComments, 800);
+  } catch (err) {
+    console.error('送出留言失敗', err);
+    alert('送出留言失敗，請稍後再試。');
+  } finally {
+    commentSubmit.disabled = false;
+  }
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function updateSearch() {
   const query = searchInput.value.trim().toLowerCase();
   const filtered = lights.filter((light) => {
@@ -321,6 +436,8 @@ loadData();
 initHeroCarousel();
 initTopBarNavigation();
 initScrollTopButton();
+if (commentForm) commentForm.addEventListener('submit', submitComment);
+loadComments();
 
 function initTopBarNavigation() {
   const topBarItems = document.querySelectorAll('.top-bar__item');
